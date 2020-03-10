@@ -37,9 +37,24 @@ public class Board extends JPanel implements ActionListener {
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        for(Sprite thisGuy: actors){
-            thisGuy.paint(g);
+
+        g.setColor(Color.white);
+
+        if(Gamestates.isMENU()){
+            g.setFont(new Font("Comic", Font.BOLD, 75));
+            printString("Shapey Shapes", 0, getWidth()/2, (getHeight()/2)-50, g);
+            g.setFont(new Font("Comic", Font.BOLD, 50));
+            printString("Click to Play!", 0, getWidth()/2, (getHeight()/2)+50, g);
         }
+
+        if(Gamestates.isPLAY()){
+            g.setFont(new Font("Comic", Font.BOLD, 20));
+            printString("Shapey Shapes", 0, getWidth()/2, getHeight()+20, g);
+            for(Sprite thisGuy: actors){
+                thisGuy.paint(g);
+            }
+        }
+
     }
 
     public void checkCollisions(){
@@ -47,7 +62,7 @@ public class Board extends JPanel implements ActionListener {
         for(int i = 1; i < actors.size(); i++){
             if(actors.get(0).collidesWith(actors.get(i))){
                 if(actors.get(i) instanceof Enemy){
-                    game.notClicked();
+                    Gamestates.setPAUSE(true);
                 } else
                     actors.get(i).setRemove();
             }
@@ -66,22 +81,38 @@ public class Board extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e){
 
         nextMoment = System.currentTimeMillis();
-        if ((nextMoment - game.getMoment()) >= 1500){
-            checkCollisions();
+
+        if(Gamestates.isMENU() && game.getIsClicked()){
+            Gamestates.setMENU(false);
+            Gamestates.setPLAY(true);
         }
 
-        if(game.getIsClicked()){
-            for(Sprite thisGuy: actors){
-                thisGuy.move();
-            }
-        }
-
-
-        if(actors.size() <= STATS.getNumEnemies()+1){
-            System.out.println("Killed them all");
+        if(Gamestates.isPAUSE()){
             game.notClicked();
         }
 
+        if(Gamestates.isPLAY() && !Gamestates.isPAUSE()){
+
+            if((nextMoment - game.getMoment()) >= 1500){
+                checkCollisions();
+            }
+
+            for(Sprite thisGuy: actors){
+                thisGuy.move();
+            }
+
+            if(actors.size() <= STATS.getNumEnemies()+1){
+                System.out.println("Killed them all");
+                Gamestates.setPAUSE(true);
+            }
+        }
+
         repaint();
+    }
+
+    private void printString(String s, int width, int x, int y, Graphics g){
+        int stringLen = (int)g.getFontMetrics().getStringBounds(s, g).getWidth();
+        int start = width/2 - stringLen/2;
+        g.drawString(s, start + x, y);
     }
 }

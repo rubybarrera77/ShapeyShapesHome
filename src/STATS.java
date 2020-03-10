@@ -6,6 +6,8 @@ public class STATS {
     private static int level = 1;
     private static int lowSpeed = 4;
     private static int rangeSpeed = 8;
+    private static int score = 0;
+    private static int lives = 3;
 
     public static int getNumFood() {
         return numFood;
