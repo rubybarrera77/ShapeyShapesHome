@@ -30,7 +30,7 @@ public class Gamestates {
 
     public static boolean isUPDATE() { return UPDATE; }
 
-    public static void UPDATE(boolean UPDATE) { Gamestates.UPDATE = UPDATE; }
+    public static void setUPDATE(boolean UPDATE) { Gamestates.UPDATE = UPDATE; }
 
 
 }

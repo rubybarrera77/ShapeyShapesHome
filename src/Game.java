@@ -32,7 +32,9 @@ public class Game extends JFrame {
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
+
                 super.mouseMoved(e);
+
                 positionX = e.getX();
                 positionY = e.getY();
             }
@@ -49,6 +51,7 @@ public class Game extends JFrame {
 
         pack();
         board.setup();
+
 
         setLocationRelativeTo(null);
 
@@ -70,5 +73,6 @@ public class Game extends JFrame {
     public static void main(String[] agrs){
         new Game();
     }
+
 
 }

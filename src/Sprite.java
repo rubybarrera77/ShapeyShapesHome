@@ -48,7 +48,7 @@ public abstract class Sprite {
     }
 
     public Rectangle getBounds(){
-        return new Rectangle(x, y, width, height);
+        return new Rectangle(x, y, width+7, height+7);
     }
 
     public abstract void paint(Graphics g);
@@ -99,5 +99,21 @@ public abstract class Sprite {
 
     public void setHeight(int height) {
         this.height = height;
+    }
+
+    public double getDx() {
+        return dx;
+    }
+
+    public void setDx(double dx) {
+        this.dx = dx;
+    }
+
+    public double getDy() {
+        return dy;
+    }
+
+    public void setDy(double dy) {
+        this.dy = dy;
     }
 }
