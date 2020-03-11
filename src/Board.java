@@ -25,6 +25,10 @@ public class Board extends JPanel implements ActionListener {
         actors = new ArrayList<>();
         actors.add(new Player(Color.green, getWidth()/2, getHeight()/2, 50, 50, this, game));
 
+        if(STATS.getLevel() > 2){
+            actors.add(new Powerup(Color.pink, (int)(Math.random()*(getWidth()-paddingNum)+paddingNum), (int)(Math.random()*(getHeight()-paddingNum)+paddingNum), 30, 30, this));
+        }
+
         for(int i = 0; i < STATS.getNumFood(); i++){
             actors.add(new Food(Color.orange, (int)(Math.random()*(getWidth()-paddingNum)+paddingNum), (int)(Math.random()*(getHeight()-paddingNum)+paddingNum), 20, 20, this));
         }
@@ -88,6 +92,9 @@ public class Board extends JPanel implements ActionListener {
                     actors.get(i).setDx(actors.get(i).getDx()*-1);
                     actors.get(i).setDy(actors.get(i).getDy()*-1);
                     STATS.setLives(STATS.getLives()-1);
+                } else if(actors.get(i) instanceof Powerup){
+                    STATS.setLives(STATS.getLives()+5);
+                    actors.get(i).setRemove();
                 } else {
                     actors.get(i).setRemove();
                     STATS.setScore(STATS.getScore()+10);
@@ -117,10 +124,22 @@ public class Board extends JPanel implements ActionListener {
         if(Gamestates.isMENU() && game.getIsClicked()){
             Gamestates.setMENU(false);
             Gamestates.setPLAY(true);
+            game.notClicked();
         }
 
         if(Gamestates.isPAUSE()){
             game.notClicked();
+        }
+
+        if(Gamestates.isPLAY() && game.getIsClicked()){
+            Gamestates.setPAUSE(true);
+            game.notClicked();
+
+        }
+
+        if(Gamestates.isPAUSE() && game.getIsClicked()){
+            Gamestates.setPLAY(true);
+            Gamestates.setPAUSE(false);
         }
 
         if(Gamestates.isPLAY() && !Gamestates.isPAUSE()) {

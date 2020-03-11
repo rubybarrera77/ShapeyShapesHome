@@ -11,6 +11,4 @@ public class Enemy extends Sprite{
         g.setColor(getColor());
         g.fillOval(getX(), getY(), getWidth(), getHeight());
     }
-
-
 }
