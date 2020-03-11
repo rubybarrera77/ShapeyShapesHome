@@ -7,6 +7,7 @@ public abstract class Sprite {
     int x, y, width, height;
     double dx, dy;
     boolean remove = false;
+    boolean move = false;
 
     public Sprite(Color color, int x, int y, int width, int height, Board board){
         this.color = color;
@@ -40,7 +41,9 @@ public abstract class Sprite {
         }
 
         x+=dx;
-        y+=dy;
+        if(isMove()==true){
+            y+=dy;
+        }
     }
 
     public boolean collidesWith(Sprite other){
@@ -59,6 +62,14 @@ public abstract class Sprite {
 
     public void setRemove(){
         remove = true;
+    }
+
+    public boolean isMove() {
+        return move;
+    }
+
+    public void setMove(boolean move) {
+        this.move = move;
     }
 
     public Color getColor() {
@@ -116,4 +127,5 @@ public abstract class Sprite {
     public void setDy(double dy) {
         this.dy = dy;
     }
+
 }

@@ -9,6 +9,8 @@ public class Board extends JPanel implements ActionListener {
     Game game;
     Timer timer;
     ArrayList<Sprite> actors;
+    ArrayList<Sprite>obstacles;
+
     int paddingNum = 25;
     long nextMoment;
 
@@ -21,20 +23,42 @@ public class Board extends JPanel implements ActionListener {
         timer.start();
     }
 
+    int w = 0;
+    int h = 0;
+
     public void setup(){
         actors = new ArrayList<>();
-        actors.add(new Player(Color.green, getWidth()/2, getHeight()/2, 50, 50, this, game));
+        obstacles = new ArrayList<>();
+        actors.add(new Player(Color.green, getWidth()/2, getHeight()/2, w, h, this, game));
 
+        if(STATS.getLevel() <= 1){
+            w = 40;
+            h = 40;
+            actors.get(0).setWidth(w);
+            actors.get(0).setHeight(h);
+        }
+
+        if(STATS.getLevel()>1){
+            w+=10;
+            h+=10;
+        }
         if(STATS.getLevel() > 2){
             actors.add(new Powerup(Color.pink, (int)(Math.random()*(getWidth()-paddingNum)+paddingNum), (int)(Math.random()*(getHeight()-paddingNum)+paddingNum), 30, 30, this));
         }
-
         for(int i = 0; i < STATS.getNumFood(); i++){
             actors.add(new Food(Color.orange, (int)(Math.random()*(getWidth()-paddingNum)+paddingNum), (int)(Math.random()*(getHeight()-paddingNum)+paddingNum), 20, 20, this));
         }
 
         for(int i = 0; i< STATS.getNumEnemies(); i++){
             actors.add(new Enemy(Color.RED, (int)(Math.random()*(getWidth()-paddingNum)+paddingNum), (int)(Math.random()*(getHeight()-paddingNum)+paddingNum), 50, 50, this));
+        }
+
+        int space = 0;
+        if(STATS.getLevel() > 1){
+            for(int i = 0; i < 3; i++) {
+                obstacles.add(new Obstacle(Color.blue, getWidth()/2, (getHeight()/4)+space, 70, 20, this));
+                space+=200;
+            }
         }
 
     }
@@ -53,16 +77,20 @@ public class Board extends JPanel implements ActionListener {
 
         if(Gamestates.isPLAY()){
             g.setFont(new Font("Comic", Font.BOLD, 20));
-            printString("Shapey Shapes", 0, getWidth()/2, 50, g);
+            printString("Level " + (Integer.toString(STATS.getLevel())), 0, getWidth()/2, 50, g);
             printString("Lives: " + (Integer.toString(STATS.getLives())), 50, 75, 50, g);
             printString("Score: " + (Integer.toString(STATS.getScore())), 50, 475, 50, g);
             for(Sprite thisGuy: actors){
                 thisGuy.paint(g);
             }
+            for(Sprite o: obstacles){
+                o.paint(g);
+            }
         }
 
         if(Gamestates.isUPDATE()){
             String text = " ";
+            String total = "Total Score: " + (Integer.toString(STATS.getScore()));
             String click = " ";
 
             if(STATS.getLives() == 0){
@@ -70,16 +98,20 @@ public class Board extends JPanel implements ActionListener {
                 click = "Click to Play Again";
             }
 
-            if(actors.size() <= STATS.getNumEnemies() + 1){
-                text = "Congrats! You have completed level 1!";
-                click = "Click to continue to level " + STATS.getLevel();
+            if(STATS.getLevel() > 5){
+                text = "Congrats! You Won!";
+                click = "Click to restart";
+            } else if(actors.size() <= STATS.getNumEnemies() + 1){
+                text = "Level "  +  (Integer.toString(STATS.getLevel())) + " Complete!";
+                click = "Click to continue to level " + (Integer.toString(STATS.getLevel()+1));
             }
 
             g.setFont(new Font("Comic", Font.BOLD, 50));
+            printString(total, 0, getWidth()/2, (getHeight()/2)-100, g);
             printString(text, 0, getWidth()/2, getHeight()/2, g);
 
             g.setFont(new Font("Comic", Font.BOLD, 20));
-            printString(click,0, getWidth()/2, (getHeight()/2)+50, g);
+            printString(click,0, getWidth()/2, (getHeight()/2)+70, g);
         }
 
     }
@@ -87,11 +119,22 @@ public class Board extends JPanel implements ActionListener {
     public void checkCollisions(){
 
         for(int i = 1; i < actors.size(); i++){
+            for(int j = 0; j < obstacles.size(); j++){
+                if(actors.get(i).collidesWith(obstacles.get(j))){
+                    actors.get(i).setDx(actors.get(i).getDx()*-1);
+                    actors.get(i).setDy(actors.get(i).getDy()*-1);
+                }
+                if(actors.get(0).collidesWith(obstacles.get(j))){
+                    obstacles.get(j).setDx(actors.get(i).getDx()*-1);
+                }
+            }
+
             if(actors.get(0).collidesWith(actors.get(i))){
                 if(actors.get(i) instanceof Enemy){
                     actors.get(i).setDx(actors.get(i).getDx()*-1);
                     actors.get(i).setDy(actors.get(i).getDy()*-1);
                     STATS.setLives(STATS.getLives()-1);
+                    STATS.setScore(STATS.getScore()-15);
                 } else if(actors.get(i) instanceof Powerup){
                     STATS.setLives(STATS.getLives()+5);
                     actors.get(i).setRemove();
@@ -117,6 +160,8 @@ public class Board extends JPanel implements ActionListener {
         nextMoment = System.currentTimeMillis();
 
         if(Gamestates.isMENU()){
+            STATS.setLevel(1);
+            STATS.updateLevel();
             STATS.setLives(5);
             STATS.setScore(0);
         }
@@ -149,17 +194,27 @@ public class Board extends JPanel implements ActionListener {
             }
 
             for (Sprite thisGuy : actors) {
+                thisGuy.setMove(true);
                 thisGuy.move();
             }
 
-            if (actors.size() <= STATS.getNumEnemies() + 1) {
-                System.out.println("Killed them all");
+            for (Sprite o : obstacles) {
+                o.setMove(false);
+                o.move();
+            }
+
+            if(STATS.getLives() == 0) {
                 Gamestates.setUPDATE(true);
                 Gamestates.setPLAY(false);
                 game.notClicked();
             }
 
-            if(STATS.getLives() == 0) {
+            if(STATS.getLevel() > 5){
+                Gamestates.setUPDATE(true);
+                Gamestates.setPLAY(false);
+                game.notClicked();
+            } else if (actors.size() <= STATS.getNumEnemies() + 1) {
+                System.out.println("Killed them all");
                 Gamestates.setUPDATE(true);
                 Gamestates.setPLAY(false);
                 game.notClicked();
@@ -175,13 +230,17 @@ public class Board extends JPanel implements ActionListener {
                 Gamestates.setMENU(true);
             }
 
-            if (actors.size() <= STATS.getNumEnemies() + 1) {
+            if(STATS.getLevel() > 5){
+                STATS.setLevel(1);
+                STATS.updateLevel();
+                setup();
+                Gamestates.setMENU(true);
+            } else if (actors.size() <= STATS.getNumEnemies() + 1){
                 STATS.setLevel(STATS.getLevel()+1);
                 STATS.updateLevel();
                 setup();
                 Gamestates.setPLAY(true);
             }
-
 
             Gamestates.setUPDATE(false);
         }

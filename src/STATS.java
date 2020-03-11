@@ -4,7 +4,7 @@ public class STATS {
     private static int numEnemies = 1;
     private static int life = 3;
     private static int level = 1;
-    private static int lowSpeed = 4;
+    private static int lowSpeed = 2;
     private static int rangeSpeed = 4;
     private static int score = 0;
     private static int lives = 5;
@@ -76,32 +76,32 @@ public class STATS {
     public static void updateLevel() {
         switch (level) {
             case 1:
-                setNumFood(5);
+                setNumFood(2);//5
                 setNumEnemies(1);
                 setLowSpeed(2);
                 setRangeSpeed(4);
                 break;
             case 2:
-                setNumFood(10);
+                setNumFood(4);//10
                 setNumEnemies(1);
                 setLowSpeed(4);
                 setRangeSpeed(8);
                 break;
             case 3:
-                setNumFood(13);
+                setNumFood(6);//13
                 setNumEnemies(1);
                 setLowSpeed(6);
                 setRangeSpeed(10);
                 break;
             case 4:
-                setNumFood(20);
-                setNumEnemies(1);
+                setNumFood(8);//20
+                setNumEnemies(1);//2
                 setLowSpeed(8);
                 setRangeSpeed(12);
                 break;
             case 5:
-                setNumFood(25);
-                setNumEnemies(2);
+                setNumFood(1);//25
+                setNumEnemies(1);
                 setLowSpeed(10);
                 setRangeSpeed(15);
                 break;
